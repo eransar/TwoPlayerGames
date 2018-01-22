@@ -81,6 +81,21 @@ public class OthelloBoard implements IBoard
         _boardGame[(_size / 2)     ][ (_size / 2) - 1  ] = '2';
 	}
 	
+	public IBoard getNewChildBoard
+	(
+		IMove move,
+		char  player
+	)
+	{
+		if(move instanceof OthelloMove)
+		{
+			OthelloBoard childBoard = new OthelloBoard(this);
+			childBoard.executePlayersMove(player, move);
+			return childBoard;
+		}
+		return null;
+	}
+	
 	
 	/**
 	 * Othello Board compare between this and other board
@@ -258,7 +273,7 @@ public class OthelloBoard implements IBoard
 	 * @param		player		the current player
 	 * @return      the character of the other player
 	 */
-	private char getOtherPlayer
+	public char getOtherPlayer
 	(
 		char player
 	)

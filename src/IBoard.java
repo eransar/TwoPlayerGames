@@ -8,4 +8,15 @@ public interface IBoard
 	);
 	
 	public boolean isTheGameOver();
+	
+	public IBoard getNewChildBoard
+	(
+		IMove move,
+		char  player
+	);
+	
+	public char getOtherPlayer
+	(
+		char player
+	);
 }
