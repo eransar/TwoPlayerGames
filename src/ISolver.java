@@ -1,12 +1,15 @@
 
 public interface ISolver 
 {
-	public IMove play
-	(
-			IGame 		game,
-			IHeuristic 	heuristic,
-			IBoard 		board,
-			char 		player,
-			Object[]	parameters
-	);
+	public ISolver 	copySolver();
+	
+	public IMove 	play(IBoard board);
+		
+	public Pair 	solve(IBoard board);
+	
+	public void		writeGameToFile(String file, double score);
+	
+	public void		writeSolverToFile(String file, int instanceID);
+	
+	public String	getSolverName();
 }

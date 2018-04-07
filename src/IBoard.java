@@ -2,21 +2,19 @@ import java.util.ArrayList;
 
 public interface IBoard 
 {
-	public ArrayList<IMove> getLegalMoves
-	(
-		char player
-	);
+	public IBoard 			copyBoard();
 	
-	public boolean isTheGameOver();
+	public ArrayList<IMove> getLegalMoves();
 	
-	public IBoard getNewChildBoard
-	(
-		IMove move,
-		char  player
-	);
+	public boolean 			isTheGameOver();
 	
-	public char getOtherPlayer
-	(
-		char player
-	);
+	public IBoard 			getNewChildBoard(IMove move);
+	
+	public char 			getCurrentPlayer();
+	
+	public char 			getNextPlayer();
+	
+	public double			getScore();
+	
+	public String 			getBoardName();
 }
