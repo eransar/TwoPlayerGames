@@ -15,7 +15,8 @@ public class WeightedAlphaBetaPruning implements ISolver
 	private		int						_expands;
 	private		ChildSelectionMethod	_childSelection;
 	public		WeightedAlphaBetaPruningNode _root;
-	
+	public		int						_maxExpands;
+	public		int 					_turns;
 	public enum ErrorPolicy				{NONE};
 	public enum ChildSelectionMethod	{OPTI, PESS, AVERAGE};
 	
@@ -38,6 +39,32 @@ public class WeightedAlphaBetaPruning implements ISolver
 		_maxDepth		= maxDepth;
 		_expands  		= 0;
 		_childSelection	= childSelection;
+		_maxExpands		= -1;
+		_turns			= 0;
+	}
+	
+	public WeightedAlphaBetaPruning
+	(	
+		IHeuristic 				heuristic,
+		ErrorPolicy				ePolicy,
+		double					lowerBound,
+		double					upperBound,
+		double					e,
+		int						maxDepth,
+		ChildSelectionMethod	childSelection,
+		int						maxExpands			// for iterative alpha-beta
+	)
+	{
+		_heuristic		= heuristic;
+		_ePolicy		= ePolicy;
+		_v_min			= lowerBound;
+		_v_max			= upperBound;
+		_e				= e;
+		_maxDepth		= maxDepth;
+		_expands  		= 0;
+		_childSelection	= childSelection;
+		_maxExpands		= maxExpands;
+		_turns			= 0;
 	}
 	
 	public WeightedAlphaBetaPruning
@@ -51,7 +78,8 @@ public class WeightedAlphaBetaPruning implements ISolver
 				toCopy._v_max,
 				toCopy._e,
 				toCopy._maxDepth,
-				toCopy._childSelection);
+				toCopy._childSelection,
+				toCopy._maxExpands);
 	}
 	
 	public IMove play
@@ -59,11 +87,50 @@ public class WeightedAlphaBetaPruning implements ISolver
 		IBoard 		board	
 	)
 	{
+		_turns++;
+		if (_maxExpands != -1)
+			return playIterations(board);
 		long startTime = System.nanoTime();
 		createRoot(board);
 
 		IMove bestMove = rootAlphaBeta();
 
+		return bestMove;
+	}
+	
+	public IMove playIterations
+	(
+		IBoard 		board
+	)
+	{
+		IMove	bestMove 		= null;
+		IMove 	currentBestMove = null;
+		int		expands 		= _expands;
+		int		depth			= _maxDepth;
+		int 	maxDepth;
+		int 	currentExpands	= 0;
+		int		newExpantions	= 0;
+		_expands = 0;
+		for (maxDepth = 4; ; maxDepth++)
+		{
+			_maxDepth = maxDepth;
+			createRoot(board);
+			
+			currentBestMove = rootAlphaBeta();
+			
+			if (_expands <= _maxExpands)
+			{
+				if(newExpantions == _expands - currentExpands)
+					break;
+				newExpantions	= _expands - currentExpands;
+				currentExpands 	= _expands;
+				bestMove 		= currentBestMove;
+			}
+			else
+				break;
+		}
+		_expands 	= expands   + currentExpands;
+		_maxDepth	= depth	 	+  maxDepth - 1;
 		return bestMove;
 	}
 	
@@ -157,12 +224,7 @@ public class WeightedAlphaBetaPruning implements ISolver
 	{
 		IMove	bestMove = null;
 		for (WeightedAlphaBetaPruningNode child : children) 
-		{
-			boolean a1 = nodeType == INode.NodeType.MAX;
-			boolean a2 = child.opti > bestValue;
-			boolean a3 = nodeType == INode.NodeType.MIN;
-			boolean a4 = child.opti < bestValue;
-					
+		{	
 			if (	(nodeType == INode.NodeType.MAX &&
 					 	child.opti > bestValue		)	||
 					(nodeType == INode.NodeType.MIN &&
@@ -345,43 +407,11 @@ public class WeightedAlphaBetaPruning implements ISolver
 					depth == _maxDepth); 
 	}
 	
-	private void writeStatisticsToFile() 
-	{
-		String filePath = "C:\\Users\\USER\\Documents\\Results";
-		String fileName = "Results.csv";
-		
-		try 
-		{
-			FileWriter pw = new FileWriter(filePath + "\\" + fileName, true);
-	
-			pw.append(Double.toString(_e));
-			pw.append(",");
-			pw.append(Integer.toString(_maxDepth));
-			pw.append(",");
-			pw.append(Integer.toString(_expands));
-			pw.append(",");
-			pw.append(Long.toString(TimeUnit.NANOSECONDS.toMillis(_time)));
-			pw.append(",");
-			pw.append(Double.toString(_root.pess));
-			pw.append(",");
-			pw.append(Double.toString(_root.opti));
-			pw.append(",");
-			pw.append(Double.toString(_v_min));
-			pw.append(",");
-			pw.append(Double.toString(_v_max));
-			pw.append("\n");
-	        pw.flush();
-	        pw.close();
-		}
-		catch (Exception e) 
-		{
-			// TODO: handle exception
-		}
-	}
 	
 	public void writeGameToFile
 	(
 		String 	file, 
+		IBoard  board,
 		double 	score
 	)
 	{
@@ -389,19 +419,24 @@ public class WeightedAlphaBetaPruning implements ISolver
 		{
 			FileWriter pw = new FileWriter(file, true);
 	
+
 			pw.append(Double.toString(_e));
 			pw.append(",");
 			pw.append(Double.toString(score));
 			pw.append(",");
 			pw.append(_childSelection.name());
 			pw.append(",");
-			pw.append(Integer.toString(_maxDepth));
+			pw.append(Double.toString((double)_maxDepth/(double)_turns));
 			pw.append(",");
 			pw.append(Integer.toString(_expands));
+			pw.append(",");
+			pw.append(Integer.toString(_maxExpands));
 			pw.append(",");
 			pw.append(Double.toString(_v_min));
 			pw.append(",");
 			pw.append(Double.toString(_v_max));
+			pw.append(",");
+			pw.append(board.getBoardName());
 			pw.append("\n");
 			
 	        pw.flush();
@@ -416,6 +451,7 @@ public class WeightedAlphaBetaPruning implements ISolver
 	public void writeSolverToFile
 	(
 		String 	file, 
+		IBoard  board,
 		int 	instanceID
 	)
 	{
@@ -430,15 +466,17 @@ public class WeightedAlphaBetaPruning implements ISolver
 			pw.append(",");
 			pw.append(Double.toString(_root.opti));
 			pw.append(",");
-			pw.append(_childSelection.name());
-			pw.append(",");
 			pw.append(Integer.toString(_maxDepth));
 			pw.append(",");
 			pw.append(Integer.toString(_expands));
 			pw.append(",");
+			pw.append(Integer.toString(_maxExpands));
+			pw.append(",");
 			pw.append(Double.toString(_v_min));
 			pw.append(",");
 			pw.append(Double.toString(_v_max));
+			pw.append(",");
+			pw.append(board.getBoardName());
 			pw.append("\n");
 			
 	        pw.flush();

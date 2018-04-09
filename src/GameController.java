@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
@@ -9,7 +10,10 @@ public class GameController
 	public GameController()
 	{
 		//compareDepthRandomBoard();
-		compareChildPoliciesRandomBoard();
+		//compareChildPoliciesRandomBoard();
+		comparePlayingChildPoliciesRandomBoard();
+		//comparePlayingEOthello();
+		//compareNodeExpantionEOthello();
 	}
 	
 	public void RunAll()
@@ -109,9 +113,51 @@ public class GameController
 		
 		String 		file		= filePath + "\\" + fileName;
 		
+		WriteGameHeaderToFile(file);
 		double 		score = board.getScore();
-		solver1.writeGameToFile(file, score);
-		solver2.writeGameToFile(file, - score);
+		solver1.writeGameToFile(file, board, score);
+		solver2.writeGameToFile(file, board, - score);
+	}
+	
+	private void WriteGameHeaderToFile
+	(
+		String file
+	)
+	{
+		try 
+		{
+			File tmpDir = new File(file);
+			if(tmpDir.exists())
+				return;
+			
+			FileWriter pw = new FileWriter(file, true);
+	
+			pw.append("e");
+			pw.append(",");
+			pw.append("score");
+			pw.append(",");
+			pw.append("ChildSelectionPolicy");
+			pw.append(",");
+			pw.append("maxDepth");
+			pw.append(",");
+			pw.append("expands");
+			pw.append(",");
+			pw.append("maxExpands");
+			pw.append(",");
+			pw.append("vmin");
+			pw.append(",");
+			pw.append("vmax");
+			pw.append(",");
+			pw.append("board");
+			pw.append("\n");
+			
+	        pw.flush();
+	        pw.close();
+		}
+		catch (Exception e) 
+		{
+			// TODO: handle exception
+		}
 	}
 
 	private void WriteSolverToFile
@@ -126,7 +172,51 @@ public class GameController
 		
 		String 		file		= filePath + "\\" + fileName;
 		
-		solver.writeSolverToFile(file, instanceID);
+		WriteSolverHeaderToFile(file);
+		solver.writeSolverToFile(file, board, instanceID);
+	}
+	
+	private void WriteSolverHeaderToFile
+	(
+		String file
+	)
+	{
+		try 
+		{
+			File tmpDir = new File(file);
+			if(tmpDir.exists())
+				return;
+			
+			FileWriter pw = new FileWriter(file, true);
+	
+			pw.append("instance");
+			pw.append(",");
+			pw.append("e");
+			pw.append(",");
+			pw.append("pess");
+			pw.append(",");
+			pw.append("opti");
+			pw.append(",");
+			pw.append("maxDepth");
+			pw.append(",");
+			pw.append("expands");
+			pw.append(",");
+			pw.append("maxExpands");
+			pw.append(",");
+			pw.append("vmin");
+			pw.append(",");
+			pw.append("vmax");
+			pw.append(",");
+			pw.append("board");
+			pw.append("\n");
+			
+	        pw.flush();
+	        pw.close();
+		}
+		catch (Exception e) 
+		{
+			// TODO: handle exception
+		}
 	}
 
 	private void compareSelectingChildMethods(int depth, double ee)
@@ -147,7 +237,34 @@ public class GameController
 			_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, ee, depth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 	}
 	
-	private void compareDepthRandomBoard()
+	
+	private void comparePlayingChildPoliciesRandomBoard()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		int 	branchingFactor	= 3;
+		int 	depth			= 7;
+		double 	lowerBound		= 0;
+		double 	upperBound		= 10000;
+		
+		for(int seed = 0; seed < 10000; seed++)
+			_boards.add(new RandomBoard(branchingFactor, depth, seed, lowerBound, upperBound));
+		
+		
+		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		double									e					= 0;
+		int 									maxDepth			= Integer.MAX_VALUE;
+			
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1000, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1000, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.OPTI));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1000, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.PESS));
+
+		RunAll();
+	}
+	
+	
+	private void compareERandomBoard()
 	{
 		_boards			= new ArrayList<IBoard>();
 		_solvers		= new ArrayList<ISolver>();
@@ -173,7 +290,7 @@ public class GameController
 		SolveAll();
 	}
 	
-	private void compareChildPoliciesRandomBoard()
+	private void compareChildPoliciesOthello()
 	{
 		_boards			= new ArrayList<IBoard>();
 		_solvers		= new ArrayList<ISolver>();
@@ -198,5 +315,57 @@ public class GameController
 		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 16, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 
 		RunAll();
+	}
+	
+	private void comparePlayingEOthello()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		
+		int 	boardSize		= 6;
+		double 	lowerBound		= - (boardSize * boardSize);
+		double 	upperBound		= boardSize * boardSize;
+		
+		_boards.add(new OthelloBoard(boardSize,'1'));
+		
+		
+		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		double									e					= 0;
+		int 									maxDepth			= 0;
+			
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE, 5000));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE, 5000));
+	
+		RunAll();
+	}
+	
+	private void compareNodeExpantionEOthello()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		
+		int 	boardSize		= 6;
+		double 	lowerBound		= - (boardSize * boardSize);
+		double 	upperBound		= boardSize * boardSize;
+		
+		_boards.add(new OthelloBoard(boardSize,'1'));
+		
+		
+		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		double									e					= 0;
+		int 									maxDepth			= 5;
+			
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 2, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 8, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 16, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 32, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 64, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+	
+		SolveAll();
 	}
 }

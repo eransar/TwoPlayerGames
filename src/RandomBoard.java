@@ -136,8 +136,6 @@ public class RandomBoard implements IBoard
 	public double getScore() 
 	{
 		Pair leafNumber = getLeafNumber();
-		if (!leafNumber.x.equals(leafNumber.y))
-			System.out.println("problem!!!!!!!!!!!!!!");
 		return _randomValues[(int)leafNumber.x - 1];
 	}
 	

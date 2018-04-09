@@ -36,15 +36,17 @@ public class MCTS implements ISolver
 	}
 
 	@Override
-	public void writeGameToFile(String file, double score) {
+	public void writeGameToFile(String file, IBoard board, double score) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void writeSolverToFile(String file, int instanceID) {
+	public void writeSolverToFile(String file, IBoard board, int instanceID) {
 		// TODO Auto-generated method stub
 		
 	}
+
+
 
 }

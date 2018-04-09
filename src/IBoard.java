@@ -17,4 +17,5 @@ public interface IBoard
 	public double			getScore();
 	
 	public String 			getBoardName();
+	
 }

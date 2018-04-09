@@ -10,13 +10,14 @@ public class OthelloHeuristic implements IHeuristic
 		INode.NodeType nodeType = node.getNodeType();
 		if (board instanceof OthelloBoard)
 		{
-			OthelloBoard othelloBoard = (OthelloBoard)board;
+			OthelloBoard 	othelloBoard = (OthelloBoard)board;
+			int				cellsCount	 = othelloBoard._size * othelloBoard._size;
 			
 			Pair 	coins 			= getPlayersCoins(othelloBoard);
 			double 	MaxPlayerCoins 	= (double)coins.x;
 			double 	MinPlayerCoins 	= (double)coins.y;
 			double 	CoinParityHeuristicValue =
-					100 * (MaxPlayerCoins - MinPlayerCoins) / (MaxPlayerCoins + MinPlayerCoins);
+						cellsCount * (MaxPlayerCoins - MinPlayerCoins) / (MaxPlayerCoins + MinPlayerCoins);
 			
 			Pair 	moves 			= getPlayersMoves(othelloBoard);
 			double 	MaxPlayerMoves 	= (double)moves.x;
@@ -24,7 +25,7 @@ public class OthelloHeuristic implements IHeuristic
 			double 	MobilityHeuristicValue;
 			if (MaxPlayerMoves + MinPlayerMoves != 0)
 				MobilityHeuristicValue =
-					100 * (MaxPlayerMoves - MinPlayerMoves) / (MaxPlayerMoves + MinPlayerMoves);
+						cellsCount * (MaxPlayerMoves - MinPlayerMoves) / (MaxPlayerMoves + MinPlayerMoves);
 			else
 				MobilityHeuristicValue = 0;
 			
@@ -34,7 +35,7 @@ public class OthelloHeuristic implements IHeuristic
 			double 	CornerHeuristicValue;
 			if (MaxPlayerCorners + MinPlayerCorners != 0)
 				CornerHeuristicValue =
-					100 * (MaxPlayerCorners - MinPlayerCorners) / (MaxPlayerCorners + MinPlayerCorners);
+						cellsCount * (MaxPlayerCorners - MinPlayerCorners) / (MaxPlayerCorners + MinPlayerCorners);
 			else
 				CornerHeuristicValue = 0;
 			
