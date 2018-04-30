@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -118,22 +119,22 @@ public class Grid
 		return true;
 	}
 	
-	public ArrayList<Pair> getNeighborsLocations 	// for one robber or cop
+	public List<Pair> getNeighborsLocations 	// for one robber or cop
 	(
 		Pair location
 	)
 	{
 		int x = (int)location.x;
 		int y = (int)location.y;
-		ArrayList<Pair> moves 			= new ArrayList<Pair>();
-		ArrayList<Pair> movesToRemove 	= new ArrayList<Pair>();
+		List<Pair> moves 			= new ArrayList<Pair>();
+		List<Pair> movesToRemove 	= new ArrayList<Pair>();
 		Pair moveUp 	= new Pair(x, y - 1);
 		Pair moveDown 	= new Pair(x, y + 1);
 		Pair moveRight  = new Pair(x + 1, y);
 		Pair moveLeft	= new Pair(x - 1, y);
 		moves.add(moveUp);
-		//moves.add(moveDown);
-		//moves.add(moveRight);
+		moves.add(moveDown);
+		moves.add(moveRight);
 		moves.add(moveLeft);
 		for (Pair move : moves)
 		{
@@ -141,7 +142,7 @@ public class Grid
 				movesToRemove.add(move);
 		}
 		moves.removeAll(movesToRemove);
-		//moves.add(location);
+		moves.add(location);
 		return moves;
 	}
 	

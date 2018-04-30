@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class RandomSolver implements ISolver 
@@ -14,7 +15,7 @@ public class RandomSolver implements ISolver
 	public IMove play(IBoard board) 
 	{
 		Random rand = new Random();
-		ArrayList<IMove> legalMoves = board.getLegalMoves();
+		List<IMove> legalMoves = board.getLegalMoves();
 		int randomIndex = rand.nextInt(legalMoves.size());
 		return legalMoves.get(randomIndex);
 	}

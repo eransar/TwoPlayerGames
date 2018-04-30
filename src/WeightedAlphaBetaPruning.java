@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.event.ChangeListener;
@@ -201,7 +202,7 @@ public class WeightedAlphaBetaPruning implements ISolver
 			_root.beta  = _root.parent.beta;
 		}
 		int childCount=0;
-		ArrayList<WeightedAlphaBetaPruningNode> children = _root.createChildren();
+		List<WeightedAlphaBetaPruningNode> children = _root.createChildren();
 		for (WeightedAlphaBetaPruningNode child : children)
 		{
 			childCount++;
@@ -286,7 +287,7 @@ public class WeightedAlphaBetaPruning implements ISolver
 	
 	private IMove selectBestChild
 	(
-		ArrayList<WeightedAlphaBetaPruningNode> 	children,
+		List<WeightedAlphaBetaPruningNode> 	children,
 		INode.NodeType 								nodeType
 	)
 	{
@@ -305,7 +306,7 @@ public class WeightedAlphaBetaPruning implements ISolver
 	
 	private IMove selectBestOptiChild
 	(
-		ArrayList<WeightedAlphaBetaPruningNode> children,
+		List<WeightedAlphaBetaPruningNode> children,
 		INode.NodeType		 				 	nodeType,
 		double 						 			bestValue
 	)
@@ -327,7 +328,7 @@ public class WeightedAlphaBetaPruning implements ISolver
 	
 	private IMove selectBestPessChild
 	(
-		ArrayList<WeightedAlphaBetaPruningNode> children,
+		List<WeightedAlphaBetaPruningNode> children,
 		INode.NodeType		 				 	nodeType,
 		double 						 			bestValue
 	)
@@ -349,7 +350,7 @@ public class WeightedAlphaBetaPruning implements ISolver
 	
 	private IMove selectBestOptiPessAvarageChild
 	(
-		ArrayList<WeightedAlphaBetaPruningNode> children,
+		List<WeightedAlphaBetaPruningNode> children,
 		INode.NodeType		 				 	nodeType,
 		double 						 			bestValue
 	)
@@ -407,48 +408,25 @@ public class WeightedAlphaBetaPruning implements ISolver
 		else if (n.nodeType == INode.NodeType.MIN)
 			bestPess = _v_max;
 		
-		if (n.parent != null)
-		{
+		// Set initial alpha and beta values
+		if (n.parent == null){
+			n.alpha = _v_min;
+			n.beta = _v_max;
+		}
+		else if(n.nodeType==INode.NodeType.CHANCE){
+			n.alpha = (n.parent.alpha-n.parent.opti)/n.probability+n.opti;
+			n.beta = (n.parent.beta-n.parent.pess)/n.probability+n.pess;
+		}
+		else{ // Either MIN or MAX 
 			n.alpha = n.parent.alpha;
 			n.beta  = n.parent.beta;
-		}
-		ArrayList<WeightedAlphaBetaPruningNode> children = n.createChildren();
+		}		
+		
+		List<WeightedAlphaBetaPruningNode> children = n.createChildren();
 		int childCount = 0;
 		for (WeightedAlphaBetaPruningNode child : children)
 		{
-			childCount++;
-			if (	n.nodeType == INode.NodeType.MAX	||
-					n.nodeType == INode.NodeType.MIN)
-			{
-				child.alpha = n.alpha;
-				child.beta 	= n.beta;
-			}
-			else
-			{
-				BigDecimal alpha 	= new BigDecimal(String.valueOf(n.alpha));
-				BigDecimal beta 	= new BigDecimal(String.valueOf(n.beta));
-				BigDecimal childP 	= new BigDecimal(String.valueOf(child.probability));
-				BigDecimal opti 	= new BigDecimal(String.valueOf(n.opti));
-				BigDecimal pess 	= new BigDecimal(String.valueOf(n.pess));
-				BigDecimal copti 	= new BigDecimal(String.valueOf(child.opti));
-				BigDecimal cpess 	= new BigDecimal(String.valueOf(child.pess));
-				
-				try 
-				{
-					BigDecimal resAlpha = (alpha.add(opti.negate()).add(childP.multiply(copti))).divide(childP, MathContext.DECIMAL128);
-					BigDecimal resBeta  = ( beta.add(pess.negate()).add(childP.multiply(cpess))).divide(childP, MathContext.DECIMAL128);
-					child.alpha	= Double.max(_v_min, resAlpha.doubleValue());
-					child.beta	= Double.max(_v_min, resBeta.doubleValue());
-				} catch (ArithmeticException rr) 
-				{
-				    rr.printStackTrace();
-				}
-				
-				
-				//child.alpha = Double.max(_v_min, (n.alpha - n.opti + child.probability * child.opti) / child.probability);
-				//child.beta  = Double.min(_v_max, (n.beta  - n.pess + child.probability * child.pess) / child.probability);
-				
-			}
+			childCount++;			
 			double zeta			= computeChildBound (e, n.opti, n.pess, child.probability);
 			
 			String s = new String();
@@ -463,11 +441,8 @@ public class WeightedAlphaBetaPruning implements ISolver
 				s = "    " + s;
 			System.out.println(s + child.nodeType.name() + "    Node: " + child.hashCode() + ",[" + child.pess + " , " + child.opti + "] , p = " + child.probability + " , " + childCount + "/"+ children.size());
 
-			Pair childValues 	= recursiveAlphaBeta(child, zeta, childDepth);
-			
-			
-			child.pess			= (double)childValues.x;
-			child.opti			= (double)childValues.y;
+			recursiveAlphaBeta(child, zeta, childDepth);
+
 			System.out.println(s + "Return Node: " + child.hashCode() + ",[" + child.pess + " , " + child.opti + "]");
 			
 			if 		(n.nodeType == INode.NodeType.MAX)
@@ -591,6 +566,10 @@ public class WeightedAlphaBetaPruning implements ISolver
 		int 	instanceID
 	)
 	{
+		
+		if(_root.opti - _root.pess > _e)
+			throw new IllegalStateException("Bound broken");
+		
 		try 
 		{
 			//BigDecimal opti = new BigDecimal(String.valueOf(_root.opti));

@@ -1,12 +1,13 @@
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Random;
 
 public class CopsAndRobberBoard implements IBoard
 {
 	Grid 			_grid;
-	ArrayList<Pair> _copsLocations;
+	List<Pair> _copsLocations;
 	Pair			_robberLocation;
 	int				_cops;
 	char			_player;   // 1 - robber, 2 - cops
@@ -92,7 +93,7 @@ public class CopsAndRobberBoard implements IBoard
 	}
 
 	@Override
-	public ArrayList<IMove> getLegalMoves() 
+	public List<IMove> getLegalMoves() 
 	{
  		if 		(_player == '1')
 			return getRobberMoves();
@@ -105,10 +106,10 @@ public class CopsAndRobberBoard implements IBoard
 		return null;
 	}
 
-	private ArrayList<IMove> getRobberMoves()
+	private List<IMove> getRobberMoves()
 	{
-		ArrayList<Pair>		neighbors 	= _grid.getNeighborsLocations(_robberLocation);
-		ArrayList<IMove> 	moves 		= new ArrayList<IMove>();
+		List<Pair>		neighbors 	= _grid.getNeighborsLocations(_robberLocation);
+		List<IMove> 	moves 		= new ArrayList<IMove>();
 
 		for (Pair neighbor : neighbors)
 		{
@@ -120,24 +121,26 @@ public class CopsAndRobberBoard implements IBoard
 		return moves;
 	}
 	
-	private ArrayList<IMove> getCopsMoves()
+	private List<IMove> getCopsMoves()
 	{
-		ArrayList<ArrayList<Pair>> 	allCopsNeighbors 	= new ArrayList<ArrayList<Pair>>();
-		ArrayList<IMove> 			moves 				= new ArrayList<IMove>();
+		List<List<Pair>> 	allCopsNeighbors 	= new ArrayList<List<Pair>>();
+		List<IMove> 			moves 				= new ArrayList<IMove>();
 
 		for (int cop = 0; cop < _copsLocations.size(); cop++)
 		{
 			Pair 			currentCopLocation 	= _copsLocations.get(cop);
-			ArrayList<Pair>	neighbors 			= _grid.getNeighborsLocations(currentCopLocation);
+			List<Pair>	neighbors 			= _grid.getNeighborsLocations(currentCopLocation);
 			allCopsNeighbors.add(cop, neighbors);
 		}
 		
-		ArrayList<IMove> allMoves = getCopsMovesRecursively(allCopsNeighbors, null, 0, null);
-		ArrayList<IMove> movesToRemove = new ArrayList<IMove>();
+		List<IMove> allMoves = getCopsMovesRecursively(allCopsNeighbors, null, 0, null);
+		List<IMove> movesToRemove = new ArrayList<IMove>();
+		if(allMoves==null)
+			throw new IllegalStateException("No more moved");
 		for (IMove move : allMoves)
 		{
 			CopsAndRobberMove CABMove = (CopsAndRobberMove)move;
-			ArrayList<Pair> allCops = CABMove._moves;
+			List<Pair> allCops = CABMove._moves;
 			for (int cop1 = 0; cop1 < allCops.size() - 1; cop1++)
 				for (int cop2 = cop1 + 1; cop2 < allCops.size(); cop2++)
 				{
@@ -154,12 +157,12 @@ public class CopsAndRobberBoard implements IBoard
 		return allMoves;
 	}
 	
-	private ArrayList<IMove> getCopsMovesRecursively
+	private List<IMove> getCopsMovesRecursively
 	(
-		ArrayList<ArrayList<Pair>> 	allCopsNeighbors,
-		ArrayList<Pair> 			currentLocations,
+		List<List<Pair>> 	allCopsNeighbors,
+		List<Pair> 			currentLocations,
 		int							currentCop,
-		ArrayList<IMove>			allCombinations
+		List<IMove>			allCombinations
 	)
 	{
 		if (currentCop == allCopsNeighbors.size())
@@ -253,7 +256,7 @@ public class CopsAndRobberBoard implements IBoard
 	}
 
 	
-	private boolean compareCops(ArrayList<Pair> otherCops)
+	private boolean compareCops(List<Pair> otherCops)
 	{
 		for (Pair cop : _copsLocations)
 		{

@@ -1,11 +1,12 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class CopsAndRobberMove implements IMove
 {
-	ArrayList<Pair> _moves;
+	List<Pair> _moves;
 	public CopsAndRobberMove
 	(
-		ArrayList<Pair> moves
+		List<Pair> moves
 	) 
 	{
 		_moves = moves;

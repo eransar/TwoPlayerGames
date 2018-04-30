@@ -1,10 +1,11 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public interface IBoard 
 {
 	public IBoard 			copyBoard();
 	
-	public ArrayList<IMove> getLegalMoves();
+	public List<IMove> getLegalMoves();
 	
 	public boolean 			isTheGameOver();
 	

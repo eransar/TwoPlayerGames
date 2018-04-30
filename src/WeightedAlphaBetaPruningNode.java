@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 
 public class WeightedAlphaBetaPruningNode implements INode
@@ -18,10 +19,10 @@ public class WeightedAlphaBetaPruningNode implements INode
 
 	
 	
-	public ArrayList<WeightedAlphaBetaPruningNode> createChildren()
+	public List<WeightedAlphaBetaPruningNode> createChildren()
 	{
-		ArrayList<WeightedAlphaBetaPruningNode> children 		= new ArrayList<WeightedAlphaBetaPruningNode>();
-		ArrayList<IMove> 						possibleMoves 	= board.getLegalMoves();
+		List<WeightedAlphaBetaPruningNode> children 		= new ArrayList<WeightedAlphaBetaPruningNode>();
+		List<IMove> 						possibleMoves 	= board.getLegalMoves();
 		for(IMove move: possibleMoves)
 		{
 			WeightedAlphaBetaPruningNode child = createOneChild(move);

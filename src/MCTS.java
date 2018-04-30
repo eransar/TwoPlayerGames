@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class MCTS implements ISolver
 {
@@ -7,7 +8,7 @@ public class MCTS implements ISolver
 		IBoard 	board
 	)
 	{
-		ArrayList<IMove> legalMoves = board.getLegalMoves();
+		List<IMove> legalMoves = board.getLegalMoves();
 		IMove bestMove 				= legalMoves.get(0);
 		return bestMove;
 	}

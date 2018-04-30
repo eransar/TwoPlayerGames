@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -83,7 +84,7 @@ public class GameController
 				double cumulativeChance = 0;
 				Random rand 			= new Random();
 				double chance 			= rand.nextDouble();
-				ArrayList<IMove> moves 	= board.getLegalMoves();
+				List<IMove> moves 	= board.getLegalMoves();
 				for (IMove possibleMove : moves)
 				{
 					IBoard possibleBoard = board.getNewChildBoard(possibleMove);
@@ -193,7 +194,7 @@ public class GameController
 		int			instanceID
 	)
 	{
-		String 		filePath = "C:\\Users\\USER\\Documents\\Results";
+		String 		filePath = ".\\Results";
 		String 		fileName = "Results.csv";
 		
 		String 		file		= filePath + "\\" + fileName;
@@ -245,7 +246,7 @@ public class GameController
 		}
 		catch (Exception e) 
 		{
-			// TODO: handle exception
+			throw new RuntimeException(e);
 		}
 	}
 

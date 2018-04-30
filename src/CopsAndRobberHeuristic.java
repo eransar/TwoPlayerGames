@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class CopsAndRobberHeuristic implements IHeuristic
 {
@@ -13,7 +14,7 @@ public class CopsAndRobberHeuristic implements IHeuristic
 			Pair 				robberLocation 		= copsAndRobberBoard._robberLocation;
 			//System.out.println("time: " + copsAndRobberBoard._time);
 			//System.out.println("robber: " + robberLocation);
-			ArrayList<Pair> 	copsLocations 		= copsAndRobberBoard._copsLocations;
+			List<Pair> 	copsLocations 		= copsAndRobberBoard._copsLocations;
 			//for (Pair cop : copsLocations)
 			//	System.out.println("cop " + copsLocations.indexOf(cop) + ": " + cop);
 			double 				heuristic 			= 0;
