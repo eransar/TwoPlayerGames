@@ -18,4 +18,8 @@ public interface IBoard
 	
 	public String 			getBoardName();
 	
+	public double 			getChance();
+	
+	public void 			printBoard();
+
 }

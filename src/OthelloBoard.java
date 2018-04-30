@@ -349,7 +349,7 @@ public class OthelloBoard implements IBoard
 			return '2';
 		if( _player == '2')
 			return '1';
-		return '0';
+		return 'n';
 	}
 	
 	
@@ -775,4 +775,19 @@ public class OthelloBoard implements IBoard
         }
         return false;
     }
+
+
+	@Override
+	public void printBoard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public double getChance() 
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

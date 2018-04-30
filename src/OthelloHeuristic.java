@@ -1,6 +1,11 @@
+import java.util.Random;
+
+import org.omg.CORBA._PolicyStub;
 
 public class OthelloHeuristic implements IHeuristic
 {
+	public boolean noise = false;
+	
 	public double getHeuristic
 	(
 			INode node
@@ -43,8 +48,17 @@ public class OthelloHeuristic implements IHeuristic
 			double heuristic = (weight * CoinParityHeuristicValue  +
 								weight * MobilityHeuristicValue	+
 								weight * CornerHeuristicValue);
-			if (nodeType == INode.NodeType.MIN)
-				heuristic *= -1;
+			Random rand = new Random();
+			double randomValue = cellsCount * (rand.nextDouble() * 2 - 1);
+			weight = 1.0/4.0;
+			/*if(noise)
+				heuristic = (weight * CoinParityHeuristicValue  +
+							weight * MobilityHeuristicValue	+
+							weight * CornerHeuristicValue)+
+							weight * randomValue;
+			*/
+			//if (nodeType == INode.NodeType.MIN)
+			//	heuristic *= -1;
 			return heuristic;
 		}
 	
@@ -62,9 +76,9 @@ public class OthelloHeuristic implements IHeuristic
 		for (int i = 0; i < othelloBoard._size; i++)
 			for (int j = 0; j < othelloBoard._size; j++)
 			{
-				if (board[i][j] == othelloBoard._player)
+				if (board[i][j] == '1')
 					maxCoins++;
-				else if (board[i][j] == othelloBoard.getNextPlayer())
+				else if (board[i][j] == '2')
 					minCoins++;
 			}
 		return new Pair(maxCoins, minCoins);
@@ -77,6 +91,12 @@ public class OthelloHeuristic implements IHeuristic
 	{
 		double maxMoves = othelloBoard.getLegalMoves().size();
 		double minMoves = othelloBoard.getNextPlayerLegalMoves().size();
+		if (othelloBoard.getCurrentPlayer() == '2')
+		{
+			double temp = maxMoves;
+			maxMoves	= minMoves;
+			minMoves	= temp;
+		}
 		return new Pair(maxMoves, minMoves);
 	}
 
@@ -98,9 +118,9 @@ public class OthelloHeuristic implements IHeuristic
 		{
 			int x = (int)corner.x;
 			int y = (int)corner.y;
-			if (board[x][y] == othelloBoard._player)
+			if 		(board[x][y] == '1')
 				maxCorners++;
-			else if (board[x][y] == othelloBoard.getNextPlayer())
+			else if (board[x][y] == '2')
 				minCorners++;
 		}
 		return new Pair(maxCorners, minCorners);

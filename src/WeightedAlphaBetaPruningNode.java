@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 
 public class WeightedAlphaBetaPruningNode implements INode
@@ -23,7 +25,7 @@ public class WeightedAlphaBetaPruningNode implements INode
 		for(IMove move: possibleMoves)
 		{
 			WeightedAlphaBetaPruningNode child = createOneChild(move);
-			children.add(child);
+			children.add(child);	
 		}
 		return children;
 	}
@@ -36,15 +38,31 @@ public class WeightedAlphaBetaPruningNode implements INode
 		child.parent 		= this;
 		child.board		 	= board.getNewChildBoard(move);
 		child.lastMove		= move;
+		child.probability   = child.board.getChance();
 		
 		if(board.getCurrentPlayer() == child.board.getCurrentPlayer())
 			child.nodeType = nodeType;
 		else
 		{
-			if(nodeType == NodeType.MAX)
-				child.nodeType = NodeType.MIN; //TODO: chance nodes??
+			if(board.getChance() < 1 && board.getChance() > 0)
+			{
+				if (nodeType == NodeType.MAX || nodeType == NodeType.MIN)
+					child.nodeType = NodeType.CHANCE;
+				else
+				{
+					if(parent.nodeType == NodeType.MAX)
+						child.nodeType = NodeType.MIN;
+					else
+						child.nodeType = NodeType.MAX;
+				}
+			}
 			else
-				child.nodeType = NodeType.MAX;
+			{
+				if(nodeType == NodeType.MAX)
+					child.nodeType = NodeType.MIN; 
+				else
+					child.nodeType = NodeType.MAX;
+			}
 		}
 		return child;	
 	}
@@ -58,5 +76,6 @@ public class WeightedAlphaBetaPruningNode implements INode
 	{
 		return board;
 	}
+
 	
 }
