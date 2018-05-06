@@ -23,14 +23,15 @@ public class CopsAndRobberBoard implements IBoard
 		int 	rows,
 		int 	cols,
 		double 	obstacles,
-		int		cops
+		int		cops,
+		int 	seed
 	)
 	{
 		_time	= 0;
 		_cops	= cops;
-		_grid 	= new Grid(rows, cols, obstacles);
+		_grid 	= new Grid(rows, cols, obstacles, seed);
 		_player = '1';
-		initializeLocations();
+		initializeLocations(seed);
 		_chance = 1;
 		_parent = null;
 	}
@@ -42,10 +43,11 @@ public class CopsAndRobberBoard implements IBoard
 		double 	obstacles,
 		int		cops,
 		CopsAndRobberBoard parent,
-		double  chance
+		double  chance,
+		int 	seed
 	)
 	{
-		this(rows, cols, obstacles, cops);
+		this(rows, cols, obstacles, cops, seed);
 		_chance 		= chance;
 		_currentChance 	= chance;
 		_parent 		= parent;
@@ -70,9 +72,13 @@ public class CopsAndRobberBoard implements IBoard
 	}
 	
 
-	private void initializeLocations()
+	private void initializeLocations(int seed)
 	{
-		Random rand = new Random();
+		Random rand;
+		if (seed == -1)
+			rand = new Random();
+		else
+			rand = new Random(seed);
 		ArrayList<Pair> availableLocations = _grid.getAvailableLocations();
 		int randomIndex 		= rand.nextInt(availableLocations.size());
 		Pair randomLocation 	= availableLocations.remove(randomIndex);
@@ -226,6 +232,8 @@ public class CopsAndRobberBoard implements IBoard
 					mone1 = mone1.add(mone2);
 					BigDecimal mehane	= new BigDecimal(moves - 1);
 					//BigDecimal result	= mone / mehane;
+					//newBoard._currentChance = (1 - _chance) / (moves - 1);
+
 					newBoard._currentChance = mone1.doubleValue() / mehane.doubleValue();
 						
 				}

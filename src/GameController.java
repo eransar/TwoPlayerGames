@@ -20,10 +20,10 @@ public class GameController
 		//compareAllOthello();
 		//compareAllCAR();
 		//compareERandomBoard();
-		//compareChance();
+		compareChance();
 		//compareSolvingOthello();
 		//compareSolvingCopsAndRobber();
-		compareSolvingCopsAndRobberWithChance();
+		//compareSolvingCopsAndRobberWithChance();
 	}
 	
 	public void RunAll()
@@ -105,7 +105,7 @@ public class GameController
 	)
 	{
 		printSolveInfo(board, solver);
-		board.printBoard();
+		//board.printBoard();
 		return solver.solve(board);
 	}
 	
@@ -451,7 +451,7 @@ public class GameController
 		double 	upperBound		= Double.MAX_VALUE;
 		
 		
-		_boards.add(new CopsAndRobberBoard(6, 6, 0.2, 4));
+		_boards.add(new CopsAndRobberBoard(6, 6, 0.2, 4, -1));
 		
 		
 		IHeuristic 								CARHeuristic 			= new CopsAndRobberHeuristic();
@@ -478,13 +478,13 @@ public class GameController
 		//int 	branchingFactor	= 3;
 		//int 	depth			= 3;
 		double 	lowerBound		= 0;
-		double 	upperBound		= 10000;
-		double	chance			= 1;
+		double 	upperBound		= 100;
+		double	chance			= 0.8;
 		
 		//int seed = 16;
 		//int depth = 3;
 		//int branchingFactor = 2;
-		for(int seed = 80; seed < 100; seed++)
+		for(int seed = 0; seed < 100; seed++)
 		{
 			/*_boards.add(new RandomBoard(branchingFactor, 
 			    	    		depth, 
@@ -493,7 +493,7 @@ public class GameController
 			    	   			lowerBound,
 			    	   			upperBound,
 			    	   			chance));*/
-			for (int depth = 10; depth <= 10; depth ++) // 3->9
+			for (int depth = 2; depth <= 5; depth ++) // 3->9
 				for (int branchingFactor = 2; branchingFactor <= 5; branchingFactor++) // 2->5
 					_boards.add(new RandomBoard(branchingFactor, 
 		    	    		depth, 
@@ -513,18 +513,24 @@ public class GameController
 		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 2, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 3, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 8, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 16, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 24, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 32, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 48, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 64, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 128, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 256, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 512, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1024, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 2046, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4096, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 8182, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 80, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 96, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+
+		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 128, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 256, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 512, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1024, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 2046, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4096, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 8182, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 
 		SolveAll();
 	}
@@ -572,10 +578,10 @@ public class GameController
 		
 		for (int ins = 0; ins < 30; ins ++)
 		{
-			_boards.add(new CopsAndRobberBoard(6, 6, 0, cops));
-			_boards.add(new CopsAndRobberBoard(6, 6, 0.2, cops));
-			_boards.add(new CopsAndRobberBoard(6, 6, 0.4, cops));
-			_boards.add(new CopsAndRobberBoard(6, 6, 0.6, cops));
+			_boards.add(new CopsAndRobberBoard(6, 6, 0, cops, ins));
+			_boards.add(new CopsAndRobberBoard(6, 6, 0.2, cops, ins));
+			_boards.add(new CopsAndRobberBoard(6, 6, 0.4, cops, ins));
+			_boards.add(new CopsAndRobberBoard(6, 6, 0.6, cops, ins));
 		}
 		
 		double 	lowerBound		= 0;
@@ -609,19 +615,19 @@ public class GameController
 		_solvers		= new ArrayList<ISolver>();
 		
 		//int 	boardSize		= 6;
-		int 	cops			= 1;
+		int 	cops			= 3;
 		
-		
-		for (int ins = 0; ins < 30; ins ++)
-		{
-			_boards.add(new CopsAndRobberBoard(6, 6, 0, cops, null, 0.8));
-			//_boards.add(new CopsAndRobberBoard(6, 6, 0.2, cops));
-			//_boards.add(new CopsAndRobberBoard(6, 6, 0.4, cops));
-			//_boards.add(new CopsAndRobberBoard(6, 6, 0.6, cops));
-		}
+		for (; cops < 4; cops ++)
+			for (int ins = 0; ins < 50; ins ++)
+			{
+				_boards.add(new CopsAndRobberBoard(8, 8, 0.2, cops, null, 0.8, ins));
+				//_boards.add(new CopsAndRobberBoard(6, 6, 0.2, cops));
+				//_boards.add(new CopsAndRobberBoard(6, 6, 0.4, cops));
+				//_boards.add(new CopsAndRobberBoard(6, 6, 0.6, cops));
+			}
 		
 		double 	lowerBound		= 0;
-		double 	upperBound		= 36 * 2;
+		double 	upperBound		= 24;
 		
 		IHeuristic 								CARHeuristic 			= new CopsAndRobberHeuristic();
 
@@ -630,15 +636,25 @@ public class GameController
 		double									e					= 0;
 		//int 									maxDepth			= 3;
 		
-		for (int maxDepth = 2; maxDepth < 3; maxDepth = maxDepth + 1)
+		for (int maxDepth = 3; maxDepth < 4; maxDepth = maxDepth + 1)
 		{
 			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 1, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 2, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 4, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 8, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 16, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 1, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 2, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 3, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 4, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 6, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 8, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 10, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 12, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 14, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 16, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 20, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 24, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 28, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 32, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 40, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 48, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 64, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 		}
 		SolveAll();

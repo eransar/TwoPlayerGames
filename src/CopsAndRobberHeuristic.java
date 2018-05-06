@@ -38,8 +38,8 @@ public class CopsAndRobberHeuristic implements IHeuristic
 		int y1 = (int)location1.y;
 		int x2 = (int)location2.x;
 		int y2 = (int)location2.y;
-		double distanceX = Math.pow((double)x1 - (double)x2, 2);
-		double distanceY = Math.pow((double)y1 - (double)y2, 2);
+		double distanceX = Math.abs((double)x1 - (double)x2);
+		double distanceY = Math.abs((double)y1 - (double)y2);
 		double result	 = distanceX + distanceY;
 		return result;
 	}

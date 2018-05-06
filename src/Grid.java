@@ -65,6 +65,30 @@ public class Grid
 	}
 	
 	public Grid
+	(	
+		int 	rows,
+		int 	cols,
+		double 	obstacles,
+		int 	seed
+	)
+	{
+		this(rows, cols);
+		boolean done = false;
+		while (!done)
+		{
+			try
+			{
+				createObstacles(obstacles, seed);
+				done = true;
+			}
+			catch (Exception e)
+			{
+				
+			}
+		}
+	}
+	
+	public Grid
 	(
 		int 				rows,
 		int 				cols,
@@ -148,10 +172,11 @@ public class Grid
 	
 	private void createObstacles
 	(
-		double 	obstacles
+		double 	obstacles,
+		int		seed
 	)
 	{
-		Random rand 						= new Random();
+		Random 	rand 						= new Random(seed);
 		ArrayList<Pair> availableObstacles	= new ArrayList<Pair>();
 		int numberOfObstacles 				= (int)((double)_rows * (double)_cols * obstacles);
 		for (int row = 0; row < _rows; row++)
@@ -171,6 +196,16 @@ public class Grid
 			} while(!validObstacle(randomObstacle));
 			_obstacles.add(randomObstacle);
 		}
+	}
+	
+	private void createObstacles
+	(
+		double 	obstacles
+	)
+	{
+		Random 	rand 						= new Random();
+		int		seed						= rand.nextInt();
+		createObstacles(obstacles, seed);
 	}
 	
 	private boolean validObstacle
