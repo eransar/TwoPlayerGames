@@ -20,10 +20,11 @@ public class GameController
 		//compareAllOthello();
 		//compareAllCAR();
 		//compareERandomBoard();
-		compareChance();
+		//compareChance();
 		//compareSolvingOthello();
 		//compareSolvingCopsAndRobber();
 		//compareSolvingCopsAndRobberWithChance();
+		compareDice();
 	}
 	
 	public void RunAll()
@@ -72,13 +73,18 @@ public class GameController
 		printGameInfo(board, solver1, solver2);
 		while (!board.isTheGameOver())
 		{
-			if (((CopsAndRobberBoard)board)._time > 10000)
-				board.printBoard();
+			board.printBoard();
 			IMove move = null;
 			if 		(board.getCurrentPlayer() == '1')
-				move = solver1.play(board);
-			else if (board.getCurrentPlayer() == '2')		
-				move = solver2.play(board);
+			{
+				move  = solver1.play(board);
+				board = board.getNewChildBoard(move);
+			}
+			else if (board.getCurrentPlayer() == '2')
+			{
+				move  = solver2.play(board);
+				board = board.getNewChildBoard(move);
+			}
 			else if (board.getCurrentPlayer() == '0')
 			{
 				double cumulativeChance = 0;
@@ -90,10 +96,13 @@ public class GameController
 					IBoard possibleBoard = board.getNewChildBoard(possibleMove);
 					cumulativeChance += possibleBoard.getChance();
 					if(chance < cumulativeChance)
-						return possibleBoard;
+					{
+						board = possibleBoard;
+						break;
+					}
 				}
 			}
-			board = board.getNewChildBoard(move);
+			
 		}
 		return board;
 	}
@@ -657,6 +666,43 @@ public class GameController
 			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 48, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 			//_solvers.add(new WeightedAlphaBetaPruning(CARHeuristic, ePolicy, lowerBound, upperBound, e + 64, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 		}
+		SolveAll();
+	}
+	
+	
+	private void compareDice()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		
+		int 	boardSize		= 4;
+		int 	winSize			= 3;
+		double 	lowerBound		= 0;
+		double 	upperBound		= 1;
+		
+		//_boards.add(new DiceBoard(boardSize, winSize));
+		
+		//_boards.add(new DiceBoard(boardSize, winSize, 0, 0));
+		for (int seed = 0; seed < 50; seed++)
+			for (int d = 3; d >= 3; d--)
+				_boards.add(new DiceBoard(boardSize, winSize, d, seed));
+		
+		
+		IHeuristic 								diceHeuristic 				= new DiceHeuristic();
+		//OthelloHeuristic 						othelloHeuristicWithNoise 	= new OthelloHeuristic();
+		//othelloHeuristicWithNoise.noise = true;
+	
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		//double[]								eValues				= {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1/*, 2, 4, 8, 16, 32*/};
+		int maxDepth = Integer.MAX_VALUE;
+		//for(int instance = 0; instance < 1; instance++)
+			for(double e = 1; e >= 0; e=e-0.1)
+				//for (double e: eValues)
+				{
+					//_solvers.add(new WeightedAlphaBetaPruning(diceHeuristic, ePolicy, lowerBound, upperBound, 0, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+					_solvers.add(new WeightedAlphaBetaPruning(diceHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+					//RunAll();
+				}
 		SolveAll();
 	}
 }

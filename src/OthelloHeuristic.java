@@ -12,7 +12,6 @@ public class OthelloHeuristic implements IHeuristic
 	)
 	{
 		IBoard board 			= node.getBoard();
-		INode.NodeType nodeType = node.getNodeType();
 		if (board instanceof OthelloBoard)
 		{
 			OthelloBoard 	othelloBoard = (OthelloBoard)board;

@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.event.ChangeListener;
 
+import org.omg.CORBA.TIMEOUT;
+
 
 public class WeightedAlphaBetaPruning implements ISolver
 {
@@ -27,6 +29,8 @@ public class WeightedAlphaBetaPruning implements ISolver
 	public enum ErrorPolicy				{NONE};
 	public enum ChildSelectionMethod	{OPTI, PESS, AVERAGE};
 	public		boolean					debug = false;
+	public static long _startTime=0;
+	public long TIMEOUT = 300000;
 	
 	public WeightedAlphaBetaPruning
 	(	
@@ -148,12 +152,14 @@ public class WeightedAlphaBetaPruning implements ISolver
 		IBoard 		board	
 	)
 	{
-		long startTime = System.nanoTime();
+		_startTime = System.nanoTime();
 		createRoot(board);
 
 		rootAlphaBeta();
 		long finishTime = System.nanoTime();
-		_time = finishTime - startTime;
+		_time = finishTime - _startTime;
+		if((System.nanoTime() - _startTime)/1000000 > TIMEOUT)
+			return new Pair(-1, -1);;
 		
 		return new Pair(_root.pess, _root.opti);
 	}
@@ -177,6 +183,8 @@ public class WeightedAlphaBetaPruning implements ISolver
 			root.nodeType 	= INode.NodeType.MAX;
 		else if (board.getCurrentPlayer() == '2')
 			root.nodeType 	= INode.NodeType.MIN;
+		else if (board.getCurrentPlayer() == '0')
+			root.nodeType	= INode.NodeType.CHANCE;
 		root.pess 		= _v_min;
 		root.opti 		= _v_max;
 		_root			= root;
@@ -184,6 +192,128 @@ public class WeightedAlphaBetaPruning implements ISolver
 	
 	private IMove rootAlphaBeta()
 	{
+		
+		double  bestOpti 	= 0; 
+		double  bestPess 	= 0; 
+		_expands ++;
+
+
+		
+		_root.pess = _v_min;
+		_root.opti = _v_max;
+		
+		if 		(_root.nodeType == INode.NodeType.MAX)
+			bestOpti = _v_min;
+		else if (_root.nodeType == INode.NodeType.MIN)
+			bestPess = _v_max;
+		
+		// Set initial alpha and beta values
+		//if (_root.parent != null){
+			_root.alpha = _v_min;
+			_root.beta  = _v_max;
+		/*}
+		else if(_root.nodeType == INode.NodeType.CHANCE){
+			_root.alpha = _v_min;
+			_root.beta  = _v_max;
+		}
+		else{ // Either MIN or MAX 
+			_root.alpha = _root.parent.alpha;
+			_root.beta  = _root.parent.beta;
+		}		*/
+		
+		List<WeightedAlphaBetaPruningNode> children = _root.createChildren();
+		int childCount = 0;
+		for (WeightedAlphaBetaPruningNode child : children)
+		{
+			childCount++;			
+			double zeta			= computeChildBound (_e, _root.opti, _root.pess, child.probability);
+			
+			
+			int childDepth = 0;
+			if (_root.board.getChance() > 0 && _root.board.getChance() < 1 && _root.nodeType == WeightedAlphaBetaPruningNode.NodeType.CHANCE)
+				childDepth++;
+			else if (!(_root.board.getChance() > 0 && _root.board.getChance() < 1))
+				childDepth++;
+			
+			String s = "";
+			if (debug)
+			{
+				s = new String();
+				for ( int i = 0; i < childDepth; i++)
+					s = "    " + s;
+				System.out.println(s + child.nodeType.name() + "    Node: " + child.hashCode() + ",[" + child.pess + " , " + child.opti + "] , p = " + child.probability + " , " + childCount + "/"+ children.size());
+			}
+			recursiveAlphaBeta(child, zeta, childDepth);
+			
+			if((System.nanoTime() - _startTime)/1000000 > TIMEOUT)
+				return null;
+			
+			if (debug)
+				System.out.println(s + "Return Node: " + child.hashCode() + ",[" + child.pess + " , " + child.opti + "]");
+			
+			if 		(_root.nodeType == INode.NodeType.MAX)
+			{
+				bestOpti = Double.max(bestOpti, child.opti);
+				_root.pess 	 = Double.max(_root.pess  , child.pess);
+			}
+			else if (_root.nodeType == INode.NodeType.MIN)
+			{
+				bestPess = Double.min(bestPess, child.pess);
+				_root.opti   = Double.min(_root.opti  , child.opti);
+			}
+			else
+			{
+				BigDecimal childP 	= new BigDecimal(String.valueOf(child.probability));
+				BigDecimal opti 	= new BigDecimal(String.valueOf(_root.opti));
+				BigDecimal pess 	= new BigDecimal(String.valueOf(_root.pess));
+				BigDecimal copti 	= new BigDecimal(String.valueOf(child.opti));
+				BigDecimal cpess 	= new BigDecimal(String.valueOf(child.pess));
+				BigDecimal dvmin 	= new BigDecimal(String.valueOf(_v_min));
+				BigDecimal dvmax 	= new BigDecimal(String.valueOf(_v_max));
+				BigDecimal resPess 	= pess.add(childP.multiply(cpess.add(dvmin.negate())));
+				BigDecimal resOpti 	= opti.add(childP.negate().multiply(dvmax.add(copti.negate())));
+				_root.pess = resPess.doubleValue();
+				_root.opti = resOpti.doubleValue();
+				//n.pess   = n.pess + child.probability * (child.pess - _v_min);
+				//n.opti   = n.opti - child.probability * (_v_max - child.opti);
+			}
+			_root.alpha = Double.max(_root.pess, _root.alpha);
+			_root.beta  = Double.min(_root.opti, _root.beta);
+			//if (_root.beta <= _root.alpha + _e && childCount != children.size())
+			//{
+				//Pair toReturn = new Pair(_root.pess, _root.opti);
+				//Main.sb.append(toReturn + " - CUT! \n");
+				//System.out.println("cut! alpha = " + n.alpha + ", beta = " + n.beta + ", pess = " + n.pess + ", opti = "+ n.opti);
+				//return toReturn;
+			//}
+		}
+		
+		if 		(_root.nodeType == INode.NodeType.MAX)
+			_root.opti = bestOpti;
+		else if (_root.nodeType == INode.NodeType.MIN)
+			_root.pess = bestPess;
+		
+		//Pair toReturn = new Pair(_root.pess, _root.opti);
+		//Main.sb.append(toReturn + " \n");
+		//return toReturn;
+		
+		if (_root.nodeType == INode.NodeType.CHANCE)
+			return children.get(0).lastMove;
+		
+		IMove node = selectBestChild(children, _root.nodeType);
+		if (node == null)
+			System.out.println("problem!");
+		return node;
+
+		
+		
+		
+		
+		
+		
+		
+		
+		/*
 		double  bestOpti 	= 0; 
 		double  bestPess 	= 0; 
 		_expands ++;
@@ -238,13 +368,13 @@ public class WeightedAlphaBetaPruning implements ISolver
 			_root.opti = bestOpti;
 		else if (_root.nodeType == INode.NodeType.MIN)
 			_root.pess = bestPess;
-
-		return selectBestChild(children, _root.nodeType);
+*/
+		//return selectBestChild(children, _root.nodeType);
 	}
 	
 	private IMove selectBestChild
 	(
-		List<WeightedAlphaBetaPruningNode> 	children,
+		List<WeightedAlphaBetaPruningNode> 			children,
 		INode.NodeType 								nodeType
 	)
 	{
@@ -404,7 +534,10 @@ public class WeightedAlphaBetaPruning implements ISolver
 				System.out.println(s + child.nodeType.name() + "    Node: " + child.hashCode() + ",[" + child.pess + " , " + child.opti + "] , p = " + child.probability + " , " + childCount + "/"+ children.size());
 			}
 			recursiveAlphaBeta(child, zeta, childDepth);
-
+			
+			if((System.nanoTime() - _startTime)/1000000 > TIMEOUT)
+				return null;
+			
 			if (debug)
 				System.out.println(s + "Return Node: " + child.hashCode() + ",[" + child.pess + " , " + child.opti + "]");
 			
@@ -530,8 +663,8 @@ public class WeightedAlphaBetaPruning implements ISolver
 	)
 	{
 		
-		if(_root.opti - _root.pess - 0.001 > _e)
-			throw new IllegalStateException("Bound broken");
+		//if(_root.opti - _root.pess - 0.001 > _e)
+		//	throw new IllegalStateException("Bound broken");
 		
 		try 
 		{

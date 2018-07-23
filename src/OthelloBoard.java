@@ -185,8 +185,8 @@ public class OthelloBoard implements IBoard
 	{
 		if (_cellsLeft == 0)
 			return true;
-		if (	_player == 'n')
-                return true;
+		if (_player == 'n')
+            return true;
         return false;
 	}
 	
@@ -778,9 +778,25 @@ public class OthelloBoard implements IBoard
 
 
 	@Override
-	public void printBoard() {
-		// TODO Auto-generated method stub
-		
+	public void printBoard()  // not tested yet
+	{
+		String s = "";
+		int rows = _size;
+		int cols = _size;
+		for (int row = 0; row < rows; row++)
+		{
+			for (int col = 0; col< cols; col++)
+			{
+				if 		(_boardGame[row][col] == '1')
+					s += " | 1";
+				else if (_boardGame[row][col] == '2')
+					s += " | 2";
+				else
+					s += " |  ";
+			}
+			s += " |\n";
+		}
+		System.out.println(s);
 	}
 
 

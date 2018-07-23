@@ -25,6 +25,8 @@ public class WeightedAlphaBetaPruningNode implements INode
 		List<IMove> 						possibleMoves 	= board.getLegalMoves();
 		for(IMove move: possibleMoves)
 		{
+			if (move == null)
+				continue;
 			WeightedAlphaBetaPruningNode child = createOneChild(move);
 			children.add(child);	
 		}
@@ -51,7 +53,9 @@ public class WeightedAlphaBetaPruningNode implements INode
 					child.nodeType = NodeType.CHANCE;
 				else
 				{
-					if(parent.nodeType == NodeType.MAX)
+					if (parent == null)
+						child.nodeType = NodeType.MAX;
+					else if(parent.nodeType == NodeType.MAX)
 						child.nodeType = NodeType.MIN;
 					else
 						child.nodeType = NodeType.MAX;
