@@ -506,7 +506,7 @@ public class WeightedAlphaBetaPruning implements ISolver
 		// Set initial alpha and beta values
 		if (n.parent == null){
 			n.alpha = _v_min;
-			n.beta  = _v_max;
+			n.beta 	= _v_max;
 		}
 		else if(n.nodeType==INode.NodeType.CHANCE){
 			n.alpha = Math.max(_v_min,(n.parent.alpha-n.parent.opti)/n.probability+n.opti);

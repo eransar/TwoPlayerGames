@@ -12,7 +12,20 @@ public class GameController
 	
 	public GameController()
 	{
-		
+		//compareDepthRandomBoard();
+		//compareChildPoliciesRandomBoard();
+		//comparePlayingChildPoliciesRandomBoard();
+		//comparePlayingEOthello();
+		//compareNodeExpantionEOthello();
+		//compareAllOthello();
+		//compareAllCAR();
+		//compareERandomBoard();
+		//compareChance();
+		//compareSolvingOthello();
+		//compareSolvingCopsAndRobber();
+		//compareSolvingCopsAndRobberWithChance();
+		compareDice();
+		compareWABandBinary();
 	}
 	
 	public void RunAll()
@@ -247,6 +260,196 @@ public class GameController
 		}
 	}
 
+	private void compareSelectingChildMethods(int depth, double ee)
+	{
+		_boards.add(new OthelloBoard(6, '1'));
+		
+		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		double 									lowerBound			= -100;
+		double									upperBound			= 100;
+		double									e					= ee;
+		int 									maxDepth			= depth;
+		
+		
+			_solvers.add(new RandomSolver());
+			//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.OPTI));
+			//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.PESS));
+			_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, ee, depth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+	}
+	
+	
+	private void comparePlayingChildPoliciesRandomBoard()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		int 	branchingFactor	= 3;
+		int 	depth			= 3;
+		double 	lowerBound		= 0;
+		double 	upperBound		= 10000;
+		
+		for(int seed = 0; seed < 10000; seed++)
+			_boards.add(new RandomBoard(branchingFactor, depth, seed, lowerBound, upperBound));
+		
+		
+		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		double									e					= 0;
+		int 									maxDepth			= Integer.MAX_VALUE;
+			
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1000, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1000, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.OPTI));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1000, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.PESS));
+
+		RunAll();
+	}
+	
+	
+	private void compareERandomBoard()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		int 	branchingFactor	= 3;
+		int 	depth			= 6;
+		double 	lowerBound		= 0;
+		double 	upperBound		= 10000;
+		
+		for(int seed = 0; seed < 100; seed++)
+			_boards.add(new RandomBoard(branchingFactor, depth, seed, lowerBound, upperBound));
+		
+		
+		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
+		IHeuristic 								othelloHeuristicNoise 	= new OthelloHeuristic();
+		((OthelloHeuristic)othelloHeuristicNoise).noise = true;
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		//double									e					= 0;
+		int 									maxDepth			= Integer.MAX_VALUE;
+		
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristicNoise, ePolicy, lowerBound, upperBound, 0, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, 0, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		RunAll();
+		
+		for (double e = 1; e < 8193; e=e*2)
+		{
+			_solvers		= new ArrayList<ISolver>();
+			_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristicNoise, ePolicy, lowerBound, upperBound, 0, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+			RunAll();
+		}
+	}
+	
+	private void compareChildPoliciesOthello()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		
+		int 	boardSize		= 4;
+		double 	lowerBound		= - (boardSize * boardSize);
+		double 	upperBound		= boardSize * boardSize;
+		
+		_boards.add(new OthelloBoard(boardSize,'1'));
+		
+		
+		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		double									e					= 0;
+		int 									maxDepth			= Integer.MAX_VALUE;
+			
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 2, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 8, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 16, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+
+		RunAll();
+	}
+	
+	private void comparePlayingEOthello()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		
+		int 	boardSize		= 6;
+		double 	lowerBound		= - (boardSize * boardSize);
+		double 	upperBound		= boardSize * boardSize;
+		
+		_boards.add(new OthelloBoard(boardSize,'1'));
+		
+		
+		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		double									e					= 0;
+		int 									maxDepth			= Integer.MAX_VALUE;
+			
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 2, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 8, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+
+		RunAll();
+	}
+	
+	private void compareNodeExpantionEOthello()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		
+		int 	boardSize		= 6;
+		double 	lowerBound		= - (boardSize * boardSize);
+		double 	upperBound		= boardSize * boardSize;
+		
+		_boards.add(new OthelloBoard(boardSize,'1'));
+		
+		
+		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		double									e					= 0;
+		int 									maxDepth			= 5;
+			
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 2, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 8, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 16, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 32, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 64, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+	
+		SolveAll();
+	}
+	
+	
+	private void compareAllOthello()
+	{
+		_boards			= new ArrayList<IBoard>();
+		_solvers		= new ArrayList<ISolver>();
+		
+		int 	boardSize		= 6;
+		double 	lowerBound		= - (boardSize * boardSize);
+		double 	upperBound		= boardSize * boardSize;
+		
+		_boards.add(new OthelloBoard(boardSize,'1'));
+		
+		
+		IHeuristic 								othelloHeuristic 			= new OthelloHeuristic();
+		OthelloHeuristic 						othelloHeuristicWithNoise 	= new OthelloHeuristic();
+		othelloHeuristicWithNoise.noise = true;
+	
+		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
+		double[]								eValues				= {0, 1, 2, 4, 8, 16, 32};
+		
+		for(int instance = 0; instance <150; instance++)
+			for(int maxDepth = 3; maxDepth <= 7; maxDepth++)
+				for (double e: eValues)
+				{
+					_solvers = new ArrayList<ISolver>();
+					_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristicWithNoise, ePolicy, lowerBound, upperBound, 0, 4, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+					_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
+					RunAll();
+				}
+	}
 	
 	private void compareAllCAR()
 	{
@@ -501,70 +704,6 @@ public class GameController
 					_solvers.add(new WeightedAlphaBetaPruning(diceHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
 					//RunAll();
 				}
-		SolveAll();
-	}
-
-private void compareWABandBinary()
-	{
-		_boards			= new ArrayList<IBoard>();
-		_solvers		= new ArrayList<ISolver>();
-		//int 	branchingFactor	= 3;
-		//int 	depth			= 3;
-		double 	lowerBound		= 0;
-		double 	upperBound		= 100;
-		double	chance			= 1;
-		
-		//int seed = 16;
-		//int depth = 3;
-		//int branchingFactor = 2;
-		for(int seed = 0; seed < 50; seed++)
-		{
-			/*_boards.add(new RandomBoard(branchingFactor, 
-			    	    		depth, 
-			    	   			seed,
-			    	   			'1',
-			    	   			lowerBound,
-			    	   			upperBound,
-			    	   			chance));*/
-			for (int depth = 3; depth <= 5; depth = depth + 2) // 3->9
-				for (int branchingFactor = 2; branchingFactor <= 3; branchingFactor++) // 2->5
-					_boards.add(new RandomBoard(branchingFactor, 
-		    	    		depth, 
-		    	   			seed,
-		    	   			'1',
-		    	   			lowerBound,
-		    	   			upperBound, chance));
-
-		}
-		
-		
-		IHeuristic 								othelloHeuristic 	= new OthelloHeuristic();
-		WeightedAlphaBetaPruning.ErrorPolicy 	ePolicy 			= WeightedAlphaBetaPruning.ErrorPolicy.NONE;
-		double									e					= 0;
-		int 									maxDepth			= Integer.MAX_VALUE;
-			
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 2, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 3, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 8, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 16, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 24, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 32, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 48, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 64, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 80, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 96, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-
-		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 128, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 256, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 512, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 1024, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 2046, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 4096, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-		//_solvers.add(new WeightedAlphaBetaPruning(othelloHeuristic, ePolicy, lowerBound, upperBound, e + 8182, maxDepth, WeightedAlphaBetaPruning.ChildSelectionMethod.AVERAGE));
-
 		SolveAll();
 	}
 }
