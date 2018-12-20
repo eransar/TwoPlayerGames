@@ -1,151 +1,95 @@
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-
+import java.util.List;
 
 public class Main 
 {
-	public static StringBuilder sb  = new StringBuilder();
-	public static StringBuilder sb2 = new StringBuilder();
-	
 	public static void main(String [ ] args)
 	{
-		//testWAlphaBeta1();
-		GameController controller = new GameController();
-		//controller.Run();
+		System.out.println("Start!");
+//		task1();
+		task2();
 		System.out.println("Done!");
 	}
 	
-	private static boolean checkSolutionsValidity
+	
+	private static void task1()
+	{
+		System.out.println("---------- Task 1 ----------");
+		List<String> ids = IDs.getIDs();
+		System.out.print("Students ids: ");
+		for (String id : ids)
+			System.out.print(id + " | ");
+		System.out.println("");
+	}
+	
+	private static void task2()
+	{
+		System.out.println("---------- Task 2 ----------");
+		List<ISolver> 		solvers 	= new ArrayList<ISolver>();
+		Minimax 			minimax 	= new Minimax();
+		AlphaBetaPruning 	alphaBeta 	= new AlphaBetaPruning();
+		//solvers.add(minimax);
+		solvers.add(alphaBeta);
+		solveInstances(solvers);
+		System.out.println("");
+	}
+	
+	public static void solveInstances
 	(
-		ArrayList<WeightedAlphaBetaPruning> solutions
-	)
+		List<ISolver> 	solvers
+	) 
 	{
-		double Pess 		= Double.MIN_VALUE;
-		double Opti 		= Double.MAX_VALUE;
-		double smallestE	= Double.MAX_VALUE;
-		for (WeightedAlphaBetaPruning solution : solutions)
+		try 
 		{
-			if (solution._e < smallestE)
+			long			totalTime = 0;
+			List<String> 	instances = getInstances();
+			for (String instance : instances)
 			{
-				smallestE 	= solution._e;
-				Pess		= solution._root.pess;
-				Opti		= solution._root.opti;
-			}
-		}
+				System.out.println("---- " + instance.substring(instance.indexOf("othello_")) + " ----");
+				WeightedOthelloBoard problem 	= new WeightedOthelloBoard(instance);
+				problem.printBoard();
+				for (ISolver solver : solvers)
+				{
+					System.out.println("Solver: " + solver.getSolverName());
+					long 				startTime 	= System.nanoTime();
+					double 				solution 	= solver.solve(problem);
+					long 				finishTime 	= System.nanoTime();
+					
+					System.out.println("Minimax Value:  " + solution);
+					System.out.println("Time:  " + (finishTime - startTime)/1000000.0 + " ms");
+					totalTime += (finishTime - startTime)/1000000.0;
+					System.out.println("");
 
-		for (WeightedAlphaBetaPruning solution : solutions)
-		{
-			if (	(solution._root.pess > Pess)	||
-					(solution._root.opti < Opti))
-				return false;
-		}
-		return true;
-	}
-	
-	private static void testWAlphaBeta1()
-	{
-		
-		/*
-		ArrayList<OthelloMove> SOLS;
-		sb = new StringBuilder();
-		do
-		{
-			for(int maxDepth = 11; maxDepth < 15; maxDepth++)
-			{
-				System.out.println(maxDepth);
-				WeightedAlphaBetaPruning.MAX_DEPTH = maxDepth;
-				SOLS = new ArrayList<OthelloMove>();
-				//DummyHeuristic heuristic = new DummyHeuristic();
-				OthelloHeuristic heuristic = new OthelloHeuristic();
-				sb = new StringBuilder();
-				sb2 = new StringBuilder();
-	
-				
-				WeightedAlphaBetaPruning wab = new WeightedAlphaBetaPruning
-						(heuristic, 
-						 -100, 
-						 100, 
-						 64,
-						 WeightedAlphaBetaPruning.ErrorPolicy.NONE,
-						);
-				SOLS.add((OthelloMove)wab.play(new OthelloBoard(16, '1')));
-				
-				
-				wab = new WeightedAlphaBetaPruning
-						(heuristic, 
-						 -100, 
-						 100, 
-						 32,
-						 WeightedAlphaBetaPruning.ErrorPolicy.NONE);
-				SOLS.add((OthelloMove)wab.play(new OthelloBoard(16, '1')));
-				
-				
-				wab = new WeightedAlphaBetaPruning
-						(heuristic, 
-						 -100, 
-						 100, 
-						 16,
-						 WeightedAlphaBetaPruning.ErrorPolicy.NONE);
-				SOLS.add((OthelloMove)wab.play(new OthelloBoard(16, '1')));
-				
-				
-				wab = new WeightedAlphaBetaPruning
-						(heuristic, 
-						 -100, 
-						 100, 
-						 8,
-						 WeightedAlphaBetaPruning.ErrorPolicy.NONE);
-				SOLS.add((OthelloMove)wab.play(new OthelloBoard(16, '1')));
-				
-				
-				wab = new WeightedAlphaBetaPruning
-						(heuristic, 
-						 -100, 
-						 100, 
-						 4,
-						 WeightedAlphaBetaPruning.ErrorPolicy.NONE);
-				SOLS.add((OthelloMove)wab.play(new OthelloBoard(16, '1')));
-				
-				
-				wab = new WeightedAlphaBetaPruning
-						(heuristic, 
-						 -100, 
-						 100, 
-						 2,
-						 WeightedAlphaBetaPruning.ErrorPolicy.NONE);
-				SOLS.add((OthelloMove)wab.play(new OthelloBoard(16, '1')));
-				
-				
-				wab = new WeightedAlphaBetaPruning
-						(heuristic, 
-						 -100, 
-						 100, 
-						 1,
-						 WeightedAlphaBetaPruning.ErrorPolicy.NONE);
-				SOLS.add((OthelloMove)wab.play(new OthelloBoard(16, '1')));
-				
-			
-				wab = new WeightedAlphaBetaPruning
-						(heuristic, 
-						 -100, 
-						 100, 
-						 0,
-						 WeightedAlphaBetaPruning.ErrorPolicy.NONE);
-				SOLS.add((OthelloMove)wab.play(new OthelloBoard(16, '1')));
-				
-				
-				wab = new WeightedAlphaBetaPruning
-						(heuristic, 
-						 -100, 
-						 100, 
-						 -Integer.MAX_VALUE,
-						 WeightedAlphaBetaPruning.ErrorPolicy.NONE);
-				SOLS.add((OthelloMove)wab.play(new OthelloBoard(16, '1')));
+				}
+				System.out.println("");
 			}
-		}while(checkSols(SOLS) && false);
-		*/
-		//System.out.println(sb);
-		//System.out.println(sb2);
+			System.out.println("Total time:  " + totalTime/60000.0 + " min");
+			System.out.println("");
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
 	}
 	
-	
+	public static List<String> getInstances
+	(
+	) throws IOException
+	{
+		List<String> instances = new ArrayList<String>();
+		String currentDir = new java.io.File( "." ).getCanonicalPath() + "\\instances\\";
+		File folder = new File(currentDir);
+		File[] listOfFiles = folder.listFiles();
+
+		for (int i = 0; i < listOfFiles.length; i++) 
+		{
+			if (listOfFiles[i].isFile()) 
+			{
+				instances.add(currentDir + listOfFiles[i].getName());
+			} 
+		}
+		return instances;
+	}
 }

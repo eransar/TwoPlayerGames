@@ -5,7 +5,7 @@ public interface IBoard
 {
 	public IBoard 			copyBoard();
 	
-	public List<IMove> getLegalMoves();
+	public List<IMove> 		getLegalMoves();
 	
 	public boolean 			isTheGameOver();
 	
@@ -18,9 +18,7 @@ public interface IBoard
 	public double			getScore();
 	
 	public String 			getBoardName();
-	
-	public double 			getChance();
-	
+		
 	public void 			printBoard();
 
 }
